@@ -1,0 +1,84 @@
+Flink 源码分析1：如何生成 StreamGraph   ->   https://www.jianshu.com/p/945afb797243
+Flink源码解析 | 从Example出发：理解StreamGraph的生成过程   ->   https://juejin.im/entry/6844903752709750797
+
+https://blog.csdn.net/lisenyeahyeah/article/details/100662367
+
+https://blog.csdn.net/qq_22222499/article/details/106176881
+
+in StreamExecutionEnvironment.java
+execute()
+	=> getStreamGraph(jobName) // Getter of the StreamGraph of the streaming job. This call clears previously registered {@link Transformation transformations}. Return The streamgraph representing the transformations
+		=> getStreamGraph(jobName, clearTransformations = true); // Whether or not to clear previously registered transformations
+		   {
+				StreamGraph streamGraph = getStreamGraphGenerator().setJobName(jobName).generate(); // <= 主要
+				// 生成 streamGraph 之后, 下面代码将 transformations List 清空
+				if (clearTransformations) {
+					this.transformations.clear();
+				}
+				return streamGraph;
+			}
+				=> getStreamGraphGenerator() {
+						// 首先判断 transformations 这个 List 有没有算子, 没有的话报错, 说明在 execute 之前, 肯定已经添加了, 也就是在每一步 source/transform/sink 操作时就添加了, 这里之后再讨论
+						// 现在先往后看
+						if (transformations.size() <= 0) { 
+							throw new IllegalStateException("No operators defined in streaming topology. Cannot execute.");
+						}
+						// 将 transformations 这个 list 传入, 配置传入
+						return new StreamGraphGenerator(transformations, config, checkpointCfg)
+							.setStateBackend(defaultStateBackend)
+							.setChaining(isChainingEnabled)
+							.setUserArtifacts(cacheFile)
+							.setTimeCharacteristic(timeCharacteristic)
+							.setDefaultBufferTimeout(bufferTimeout);
+					}
+					=> public StreamGraph generate() {
+							streamGraph = new StreamGraph(executionConfig, checkpointConfig, savepointRestoreSettings);
+							streamGraph.setStateBackend(stateBackend);
+							streamGraph.setChaining(chaining);
+							streamGraph.setScheduleMode(scheduleMode);
+							streamGraph.setUserArtifacts(userArtifacts);
+							streamGraph.setTimeCharacteristic(timeCharacteristic);
+							streamGraph.setJobName(jobName);
+							streamGraph.setBlockingConnectionsBetweenChains(blockingConnectionsBetweenChains);
+
+							alreadyTransformed = new HashMap<>();
+
+							for (Transformation<?> transformation: transformations) {
+								transform(transformation);  // <= 关键
+							}
+
+							final StreamGraph builtStreamGraph = streamGraph;
+
+							alreadyTransformed.clear();
+							alreadyTransformed = null;
+							streamGraph = null;
+
+							return builtStreamGraph;
+						}
+						=>  private Collection<Integer> transform(Transformation<?> transform)
+							首先判断如果这个算子已经在 List 中了, 就返回
+							设置并行度
+
+							方法主体是一个 for 循环, 循环遍历 transformations 列表, 并将单项 transformation 传入 transform 方法.
+
+							transform() 根据传入的 transform 的类型不同递归调用不同的 transformXXX 方法并返回 transformedIds, 并添加到 transformedIds 列表中, 最终返回给上一层.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
