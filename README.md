@@ -11,13 +11,15 @@
 
 技术与业务结合 → [Flink 在实时场景中的应用](Flink实时应用场景.xmind)
 
-下面便是上面这四部分的延伸, 以及一些其他方面的扩展, 之后会不断更新:  
+下面便是上面这四部分的延伸, 以及一些其他方面的扩展, 之后会不断更新.   
 
 
 
 ## 待整理
 
 - [ ] Flink 类加载与双亲委派机制
+- [ ] Flink 内存
+- [ ] Flink 并行度扩展
 
 
 
@@ -245,6 +247,16 @@ val inputDataStream: DataStream[String] = env.socketTextStream(host, post)
 
 
 
+## Flink 与 Spark 的对比
+
+可以考虑的思路：
+
+- Spark 的处理都是按照批的思路，Streaming 也是按照 micro-batch；Flink 是事件驱动的，都是按照流的思路，批只不过是有界的流。这一点使得两者开发思路很不一样。
+- Spark Streaming 无法处理乱序数据，需要接触其他存储介质去保存相关乱序数据和进行更新；Flink 提供了事件时间语义和 Watermar，并可以通过窗口的 AllowedLatess 和侧输出流处理迟到数据。
+- Spark 的状态编程很困难，updateSateByKey 会产生大量不可见的 checkpoint 小文件，所以一般需要借助第三方存储框架实现状态编程；Flink 提供了底层状态编程的 API，checkpoint 也可以依赖 RockDB 进行增量存储。
+
+
+
 ## Flink 处理业务中的问题
 
 ### 维表关联 Join
@@ -268,17 +280,23 @@ Flink SQL 中的 Temporal Table Join
 - processing time 计算列
 - 或者有一个 ts 的 timestamp 的字段，然后使用 `watermark for ts as ts - interval '1' second`吗，这个过程把 ts 变成一个时间属性。
 
+
+
 ## Flink 项目
 
 我的仓库 → [基于 Flink 的用户行为分析](https://github.com/agoclover/flink-project-UserBehaviorAnalysis)
 
+参考项目 → [Flink实时旅游平台](./Flink实时旅游平台.md)
+
 电商常用数据指标 → [指标](./电商数据指标.xmind)
 
-## Flink 实时数仓
+
+
+## 实时数仓
 
 目前大厂都基于 Flink, Kafka 等构建了实时数仓或准实时数仓, 以下是一些实践的记录: 
 
-[基于Flink的实时数仓](./基于Flink的实时数仓.md)
+请参考这部分 → [实时数仓](./实时数仓/实时数仓Index.md)
 
 
 
