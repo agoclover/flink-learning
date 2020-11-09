@@ -31,13 +31,13 @@ rebalance 方法以 round-robin 的方式将数据依次发送给下一个任务
 
 rescale 和 rebalance 类似, 也可以将数据以 round-robin 的方式发送给下游任务, 不同点是 rebalance 会将数据发送发送给所有下游任务，而 rescale 只将数据发送给部分下游任务：
 
-![rebalance](pics/image-20201108111031567.png)
+<img src="pics/image-20201108111031567.png" alt="rebalance" style="zoom: 33%;" />
 
-![rescale](pics/image-20201108111110616.png)
+<img src="pics/image-20201108111110616.png" alt="rescale" style="zoom:33%;" />
 
 
 
-[Flink 学习笔记之三 DataStream API](https://xieyuanpeng.com/2019/02/05/flink-learning-3/#round-robin)
+参考： [Flink 学习笔记之三 DataStream API](https://xieyuanpeng.com/2019/02/05/flink-learning-3/#round-robin)
 
 
 
@@ -47,17 +47,11 @@ rescale 和 rebalance 类似, 也可以将数据以 round-robin 的方式发送�
 
 **JobManager**
 
-调度: JobGraph → ExecutionGraph
-
-向 RM 申请资源 -- `slot` 
-
-Checkpoint 的协调调度.
+调度: JobGraph → ExecutionGraph, 向 RM 申请资源 -- `slot` , Checkpoint 的协调调度.
 
 **TaskManager**
 
-具体干活的. 有时候也叫 worker.
-
-一个 TM 可以包含多个 `slot`, 能够并行执行任务的 (静态的) 能力.
+具体干活的. 有时候也叫 worker. 一个 TM 可以包含多个 `slot`, 能够并行执行任务的 (静态的) 能力.
 
 **ResourceManager**
 
@@ -65,11 +59,7 @@ Checkpoint 的协调调度.
 
 **Dispacher**
 
-启动应用.
-
-REST 接口.
-
-Web UI
+启动应用; REST 接口; Web UI.
 
 
 
