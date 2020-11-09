@@ -7,7 +7,9 @@
 - 状态编程, 容错机制, 状态一致性
 - 分层 API
 
-这些在 [FlinkSummary 思维导图](./FlinkSummary.xmind) 中都有介绍. 
+以上的思维导图 → [Flink Summary](./FlinkSummary.xmind)
+
+技术与业务结合 → [Flink 在实时场景中的应用](Flink实时应用场景.xmind)
 
 下面便是上面这四部分的延伸, 以及一些其他方面的扩展, 之后会不断更新:  
 
@@ -100,11 +102,21 @@ AllowedLateness 中的数据, 是迟于 WindowEnd 的, 一般 timer 是 WindowEn
 
 ## Flink SQL
 
+### 基础
+
 [Apache Flink 进阶（十二）：深度探索 Flink SQL](https://zhuanlan.zhihu.com/p/124267320), 可以结合 Flink 版本特性查看 SQL 各个版本的优化. 
 
 My Blog Article →[FlinkStreamingSQL深度篇](http://zhangchao.top/2020/06/02/FlinkStreamingSQL%E6%B7%B1%E5%BA%A6%E7%AF%87/)
 
 孙金武所讲的课程中的 Flink SQL 也值得反复学习 → [B 站视频](https://www.bilibili.com/video/BV1yk4y1z7Lr?p=44)
+
+### Temporal Table Join 维表关联
+
+[实时数仓|Flink SQL之维表join](https://mp.weixin.qq.com/s?__biz=MzI0NTIxNzE1Ng==&mid=2651220208&idx=1&sn=ebd800ef48913d6f189b75456ec13d2d&chksm=f2a32a1bc5d4a30de38313530dfdb7660dba9fd89b9249e26b2416cc52778076329e76dbfcd4&mpshare=1&scene=1&srcid=1107gA0QztbMC1nTYgVsmfLX&sharer_sharetime=1604749059647&sharer_shareid=3e4a6d38b1252bc10eeab6b451c24d0e#rd)
+
+[Apache Flink 漫谈系列(11) - Temporal Table JOIN](https://developer.aliyun.com/article/679659)
+
+[Flink CookBook-Table&Sql | 维表Join原理解析](https://www.jianshu.com/p/189945244f79)
 
 
 
@@ -249,19 +261,28 @@ val inputDataStream: DataStream[String] = env.socketTextStream(host, post)
 
 My Blog Article → [Flink维度关联的几种思路](http://zhangchao.top/2020/11/03/Flink%E7%BB%B4%E5%BA%A6%E5%85%B3%E8%81%94%E7%9A%84%E5%87%A0%E7%A7%8D%E6%80%9D%E8%B7%AF/)
 
-
+Flink SQL 中的 Temporal Table Join
 
 ### 去重使用 BloomFilter
 
 [BloomFilter](./BloomFilter.md)
 
+### SQL 开窗时间字段的问题
 
+![iShot2020-11-08 17.54.55](pics/iShot2020-11-08%2017.54.55.png)
+
+![image-20201108182538624](pics/image-20201108182538624.png)
+
+问题：Window aggregate 要定义在时间属性上，但其实 myts 也是一个时间属性，后来发现 window 的时间字段需要是一个 Time Attribute 这样一个属性类型，flink 如何生成 Time Attribute： 
+
+- processing time 计算列
+- 或者有一个 ts 的 timestamp 的字段，然后使用 `watermark for ts as ts - interval '1' second`吗，这个过程把 ts 变成一个时间属性。
 
 ## Flink 项目
 
 我的仓库 → [基于 Flink 的用户行为分析](https://github.com/agoclover/flink-project-UserBehaviorAnalysis)
 
-
+电商常用数据指标 → [指标](./电商数据指标.xmind)
 
 ## Flink 实时数仓
 
